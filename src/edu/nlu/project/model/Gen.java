@@ -108,11 +108,8 @@ public class Gen {
     public static void main(String[] args) {
         int[] arr = {0, 0, 7, 8, 0, 0, 9, 0, 0};
         Gen gen = new Gen(arr);
-//        System.out.println(Arrays.toString(gen.tracking()));
         for (int i = 0; i < 3; i++) {
             System.out.println(Arrays.toString(gen.getGen()));
-//			gen.setGen(8, 1, gen);
-//			System.out.println(Arrays.toString(gen.getGen()));
         }
         System.out.println(gen.getTrackingCheck());
 
