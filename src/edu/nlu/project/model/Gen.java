@@ -22,6 +22,7 @@ public class Gen {
 
     public Gen(Gen g) {
         this.gen = new int[9];
+
         for (int i = 0; i < gen.length; i++) {
             gen[i] = g.getGen()[i];
         }
@@ -56,7 +57,6 @@ public class Gen {
         boolean[] tracking = new boolean[gen.length]; // 9
 
         for (int i = 0; i < gen.length; i++) {
-
             if (gen[i] != 0) {
                 tracking[i] = true;
                 if (trackingCheck.size() < 9) {
@@ -112,6 +112,5 @@ public class Gen {
             System.out.println(Arrays.toString(gen.getGen()));
         }
         System.out.println(gen.getTrackingCheck());
-
     }
 }
