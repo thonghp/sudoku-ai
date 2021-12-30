@@ -2,14 +2,17 @@ package edu.nlu.project.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class Individual implements Comparable<Individual> {
 
-    private ArrayList<Gen> listGen; // lưu giá trị của từng hàng gen
+    private List<Gene> listGen; // danh sách chứa các hàng gene được điền
+    private Random rd = new Random();
 
     private int[][] individual;
 
+    // chứa 1 list gen trong list gen từng vị trí sẽ chứa 1 mảng 1 chiều các hàng ngang đã được điền đầy đủ
     public Individual(int[][] matrix) {
         this.individual = new int[matrix.length][matrix.length];
         this.listGen = new ArrayList<>();
@@ -22,11 +25,14 @@ public class Individual implements Comparable<Individual> {
         this.listGen = new ArrayList<>();
         setMatrix(matrix);
         for (int i = 0; i < 9; i++) {
-
-            Gen gen = new Gen(in.getListGen().get(i));
+            Gene gen = new Gene(in.getListGen().get(i));
             listGen.add(gen);
         }
+    }
 
+    // tạo con có 9 gen ngẫu nhiên
+    public Individual(ArrayList<Gene> listGen) {
+        this.listGen = listGen;
     }
 
     public void setMatrix(int[][] matrix) {
@@ -37,37 +43,28 @@ public class Individual implements Comparable<Individual> {
         }
     }
 
-    // tạo 9 hàng gen sau đó lưu vào list
+    // lấy từng hàng của matrix truyền vào trong individual để đưa qua gene điền những vị trí còn thiếu sau đó lưu lại
     public void generateIndividual() {
         for (int i = 0; i < individual.length; i++) {
-            Gen gen = new Gen(individual[i]);
+            Gene gen = new Gene(individual[i]);
             listGen.add(gen);
         }
     }
 
     // thay đổi hàng gen chỉ định thành hàng gen khác
     public void changeGen(int[] row, int index) {
-        this.listGen.set(index, new Gen(row));
+        this.listGen.set(index, new Gene(row));
     }
 
-    /**
-     * tạo con có 9 gen ngẫu nhiên
-     */
-
-    public Individual(ArrayList<Gen> listGen) {
-        super();
-        this.listGen = listGen;
-    }
-
-    public ArrayList<Gen> getListGen() {
+    public List<Gene> getListGen() {
         return listGen;
     }
 
-    public void setListGen(ArrayList<Gen> listGen) {
+    public void setListGen(ArrayList<Gene> listGen) {
         this.listGen = listGen;
     }
 
-    public void setInsertGen(int index, Gen gen) {
+    public void setInsertGen(int index, Gene gen) {
         this.listGen.add(index, gen);
     }
 
@@ -82,7 +79,7 @@ public class Individual implements Comparable<Individual> {
     public int evaluateCol() {
         int evaluate = 0;
 
-        for (int index = 0; index < this.listGen.size(); index++) {
+        for (int index = 0; index < this.listGen.size(); index++) { // 0 -> 9
             evaluate += onlyEvalueteRow(index);
         }
 
@@ -94,9 +91,10 @@ public class Individual implements Comparable<Individual> {
         int evaluate = 0;
         boolean checkCount = false;
 
-        for (int dem = 1; dem < this.listGen.size() + 1; dem++) {
+        // check số lần trùng của 1 cột (công gộp tất cả số)
+        for (int dem = 1; dem < this.listGen.size() + 1; dem++) { // 1 -> 9 (do sudoku số đánh dấu từ 1 đến 9)
             int count = 0;
-            for (int k = 0; k < this.listGen.size(); k++) {
+            for (int k = 0; k < this.listGen.size(); k++) { // 0 -> 8 ( duyệt qua 9 vị trí trên 1 cột)
                 int valueGen = listGen.get(k).getGen()[col];
                 if (dem == valueGen) {
                     count++;
@@ -117,8 +115,6 @@ public class Individual implements Comparable<Individual> {
 
     /**
      * Tính độ tốt theo ô vuông
-     *
-     * @return int
      */
     public int evalueteSquare() {
         int result = 0;
@@ -195,10 +191,6 @@ public class Individual implements Comparable<Individual> {
 
     /**
      * Tính xung đột theo ô
-     *
-     * @param gen_i
-     * @param a
-     * @return
      */
     public int evalueGetGenRect(int gen_i, int a) {
         int h = a;
@@ -227,10 +219,6 @@ public class Individual implements Comparable<Individual> {
 
     /**
      * tổng xung đột của gen
-     *
-     * @param gen_i
-     * @param a
-     * @return
      */
     public int evalueGetGen(int gen_i, int a) {
         return evalueGetGenCol(gen_i, a);
@@ -253,10 +241,10 @@ public class Individual implements Comparable<Individual> {
         return low;
     }
 
-    public boolean validMutation(Gen gen) {
+    public boolean validMutation(Gene gen) {
         int count = 0;
         for (int i = 0; i < 9; i++) {
-            if (gen.getTracking()[i]) {
+            if (gen.getChecked()[i]) {
                 count++;
             }
         }
@@ -270,14 +258,14 @@ public class Individual implements Comparable<Individual> {
      * thay đổi gen
      */
     public void setIndexGen(int[][] matrix) {
-        Random rd = new Random();
+
         int rdRow = rd.nextInt(9);
         int rdIndex2 = rd.nextInt(9);
-        Gen mutation = new Gen(matrix[rdRow]);
-        int rdIndex1 = lowGetGenGood(rdRow, mutation.getTracking());
+        Gene mutation = new Gene(matrix[rdRow]);
+        int rdIndex1 = lowGetGenGood(rdRow, mutation.getChecked());
         while (!validMutation(mutation)) {
             rdRow = rd.nextInt(9);
-            mutation = new Gen(matrix[rdRow]);
+            mutation = new Gene(matrix[rdRow]);
         }
 //		System.out.println("Hang duoc dot bien: " + rdRow);
 
@@ -288,7 +276,7 @@ public class Individual implements Comparable<Individual> {
 //				break;
 //		}
         while (true) {
-            if (rdIndex2 == rdIndex1 || mutation.getTracking()[rdIndex2] == true)
+            if (rdIndex2 == rdIndex1 || mutation.getChecked()[rdIndex2] == true)
                 rdIndex2 = rd.nextInt(9);
             else
                 break;
@@ -304,26 +292,25 @@ public class Individual implements Comparable<Individual> {
     }
 
     public void setIndexGenVer2(int[][] matrix) {
-        Random rd = new Random();
         int rdRow = rd.nextInt(9);
         int rdIndex2 = rd.nextInt(9);
         int rdIndex1 = rd.nextInt(9);
-        Gen mutation = new Gen(matrix[rdRow]);
+        Gene mutation = new Gene(matrix[rdRow]);
 //		int rdIndex1 = lowGetGenGood(rdRow, mutation.getTracking());
         while (!validMutation(mutation)) {
             rdRow = rd.nextInt(9);
-            mutation = new Gen(matrix[rdRow]);
+            mutation = new Gene(matrix[rdRow]);
         }
 //		System.out.println("Hang duoc dot bien: " + rdRow);
 
         while (true) {
-            if (mutation.getTracking()[rdIndex1] == true)
+            if (mutation.getChecked()[rdIndex1] == true)
                 rdIndex1 = rd.nextInt(9);
             else
                 break;
         }
         while (true) {
-            if (rdIndex2 == rdIndex1 || mutation.getTracking()[rdIndex2] == true)
+            if (rdIndex2 == rdIndex1 || mutation.getChecked()[rdIndex2] == true)
                 rdIndex2 = rd.nextInt(9);
             else
                 break;
@@ -371,7 +358,6 @@ public class Individual implements Comparable<Individual> {
 
     @Override
     public int compareTo(Individual o) {
-        // TODO Auto-generated method stub
         if (evaluate() == o.evaluate())
             return 0;
         else if (evaluate() > o.evaluate())
@@ -395,10 +381,35 @@ public class Individual implements Comparable<Individual> {
 //		n.print();
 //		n.setIndexGen(check);
 //		System.out.println("--------");
-        n.print();
-        n.setIndexGen(check);
+
+        // lát mở
+//        n.print();
+//        n.setIndexGen(check);
+
 //		boolean[] checkkk = n.getListGen().get(2).getTracking();
 
-    }
+        int[][] check4 = {{0, 0, 7, 0, 1, 0, 0, 0, 8}, {0, 0, 0, 6, 8, 0, 3, 0, 2},
+                {0, 0, 0, 2, 0, 4, 0, 9, 7}, {0, 3, 2, 4, 7, 9, 6, 8, 5},
+                {0, 0, 0, 1, 6, 0, 0, 0, 4}, {0, 6, 0, 0, 0, 0, 0, 1, 9},
+                {0, 7, 0, 0, 4, 0, 0, 0, 0}, {3, 0, 9, 0, 2, 0, 8, 5, 1},
+                {0, 5, 6, 8, 0, 1, 0, 7, 0}};
+        Individual matrix = new Individual(check4);
+        List<Gene> list = matrix.getListGen();
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(Arrays.toString(list.get(i).getGen()));
+        }
 
+        System.out.println("-----------------------------------");
+
+        Individual individual = new Individual(matrix, check4);
+        List<Gene> listIndividual = matrix.getListGen();
+        for (int i = 0; i < listIndividual.size(); i++) {
+            System.out.println(Arrays.toString(listIndividual.get(i).getGen()));
+        }
+
+
+//        for (int i = 0; i < list.size(); i++) {
+//            System.out.println(individual.evaluateCol());
+//        }
+    }
 }

@@ -19,6 +19,7 @@ public class Gene {
         generateNumber();
     }
 
+    // copy gene được tạo
     public Gene(Gene g) {
         this.gen = new int[9];
 
@@ -91,8 +92,11 @@ public class Gene {
 
     public static void main(String[] args) {
         int[] arr = {0, 0, 7, 8, 0, 0, 9, 0, 0};
-        Gene gen = new Gene(arr);
-        System.out.println(Arrays.toString(gen.getChecked()));
-        System.out.println(Arrays.toString(gen.getGen()));
+        Gene gen1 = new Gene(arr);
+        System.out.println(Arrays.toString(gen1.getChecked()));
+        System.out.println(Arrays.toString(gen1.getGen()));
+
+        Gene list = new Gene(gen1);
+        System.out.println(Arrays.toString(list.getGen()));
     }
 }

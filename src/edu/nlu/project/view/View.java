@@ -22,14 +22,15 @@ import javax.swing.JTextField;
 public class View extends JFrame {
     // Name-constants for the game properties
     public static final int GRID_SIZE = 9; // Size of the board
-    public static final int SUBGRID_SIZE = 3; // Size of the sub-grid
     public static JButton btnSolve;
     public static JButton btnRefresh;
     public static JButton btnCheck;
+
     // Name-constants for UI control (sizes, colors and fonts)
     public static final int CELL_SIZE = 60; // Cell width/height in pixels
     public static final int CANVAS_WIDTH = CELL_SIZE * GRID_SIZE;
     public static final int CANVAS_HEIGHT = CELL_SIZE * GRID_SIZE;
+
     // Board width/height in pixels
     public static final Color OPEN_CELL_BGCOLOR = Color.WHITE;
     public static final Color Green_color = Color.GREEN;
@@ -159,14 +160,10 @@ public class View extends JFrame {
         for (int row = 0; row < GRID_SIZE; ++row) {
             for (int col = 0; col < GRID_SIZE; ++col) {
 //                setNoticeHanle();
-
                 if (check[row][col] == false) {
-                    String txt = tfCells[row][col].getText();
-
                     tfCells[row][col].setText(solve[row][col] + "");
                     tfCells[row][col].setBackground(OPEN_CELL_BGCOLOR);
                 } else {
-                    String txt = tfCells[row][col].getText();
                     tfCells[row][col].setText(solve[row][col] + "");
                     tfCells[row][col].setForeground(Color.RED);
                     tfCells[row][col].setBackground(Green_color);
@@ -216,7 +213,7 @@ public class View extends JFrame {
             list.add(i + 1);
         }
 
-        // check xem có trùng nhau trên hàng hay cột không
+        // check xem có số nào trùng nhau trên hàng hay cột không
         for (int i = 0; i < matrix.length; i++) {
             for (Integer sum : list) {
                 int count = 0;
@@ -228,13 +225,14 @@ public class View extends JFrame {
                         count1++;
 
                 }
+
                 if (count >= 2 || count1 >= 2)
                     return false;
             }
 
         }
 
-        // check ô nhỏ
+        // check số nào trùng trong ô 3x3
         int count1 = 0;
         for (int row = 0; row < matrix.length; row += 3) {
             for (int col = 0; col < matrix.length; col += 3) {
