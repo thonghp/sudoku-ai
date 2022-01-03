@@ -83,17 +83,19 @@ public class Gene {
         }
     }
 
-    // đổi vị trí giữa 2 gen
-    public void swapGen(int valueMax, int valueMax2) {
-        int temp = this.gen[valueMax];
-        this.gen[valueMax] = this.gen[valueMax2];
-        this.gen[valueMax2] = temp;
+    // đổi giá trị của 2 cột gene chỉ định trên cùng 1 hàng
+    public void swapGeneColumn(int column1, int column2) {
+        int temp = this.gen[column1];
+        this.gen[column1] = this.gen[column2];
+        this.gen[column2] = temp;
     }
 
     public static void main(String[] args) {
         int[] arr = {0, 0, 7, 8, 0, 0, 9, 0, 0};
         Gene gen1 = new Gene(arr);
         System.out.println(Arrays.toString(gen1.getChecked()));
+        System.out.println(Arrays.toString(gen1.getGen()));
+        gen1.swapGeneColumn(0, 3);
         System.out.println(Arrays.toString(gen1.getGen()));
 
         Gene list = new Gene(gen1);
