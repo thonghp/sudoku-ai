@@ -7,32 +7,33 @@ import java.util.Random;
 
 public class Individual implements Comparable<Individual> {
 
-    private List<Gene> listGen; // danh sách chứa các hàng gene được điền
+    private List<Gene> geneList; // danh sách dùng để chứa các hàng gene sau khi được điền (9x9)
     private Random rd = new Random();
+    private int[][] individual; // dùng để gán bằng với matrix đưa vào ban đầu
 
-    private int[][] individual;
-
-    // chứa 1 list gen trong list gen từng vị trí sẽ chứa 1 mảng 1 chiều các hàng ngang đã được điền đầy đủ
+    // nhận vào matrix câu hỏi sau đó giải từng hàng và lưu các hàng đã giải vào geneList
     public Individual(int[][] matrix) {
         this.individual = new int[matrix.length][matrix.length];
-        this.listGen = new ArrayList<>();
+        this.geneList = new ArrayList<>();
         setMatrix(matrix);
         generateIndividual();
     }
 
+    // nhận vào 1 cá thể và mảng câu hỏi sau đó giải từng hàng và lưu các hàng đã giải vào geneList
     public Individual(Individual in, int[][] matrix) {
         this.individual = new int[matrix.length][matrix.length];
-        this.listGen = new ArrayList<>();
+        this.geneList = new ArrayList<>();
         setMatrix(matrix);
+
         for (int i = 0; i < 9; i++) {
-            Gene gen = new Gene(in.getListGen().get(i));
-            listGen.add(gen);
+            Gene gen = new Gene(in.getGeneList().get(i));
+            geneList.add(gen);
         }
     }
 
-    // tạo con có 9 gen ngẫu nhiên
-    public Individual(ArrayList<Gene> listGen) {
-        this.listGen = listGen;
+    // nhận vào một gene list và gán nó với geneList của cá thể
+    public Individual(ArrayList<Gene> geneList) {
+        this.geneList = geneList;
     }
 
     public void setMatrix(int[][] matrix) {
@@ -43,29 +44,29 @@ public class Individual implements Comparable<Individual> {
         }
     }
 
-    // lấy từng hàng của matrix truyền vào trong individual để đưa qua gene điền những vị trí còn thiếu sau đó lưu lại
+    // lấy từng hàng của matrix truyền vào trong individual để đưa qua gene điền những vị trí còn thiếu sau đó lưu vô list
     public void generateIndividual() {
         for (int i = 0; i < individual.length; i++) {
             Gene gen = new Gene(individual[i]);
-            listGen.add(gen);
+            geneList.add(gen);
         }
     }
 
     // thay đổi hàng gen chỉ định thành hàng gen khác
     public void changeGen(int[] row, int index) {
-        this.listGen.set(index, new Gene(row));
+        this.geneList.set(index, new Gene(row));
     }
 
-    public List<Gene> getListGen() {
-        return listGen;
+    public List<Gene> getGeneList() {
+        return geneList;
     }
 
-    public void setListGen(ArrayList<Gene> listGen) {
-        this.listGen = listGen;
+    public void setGeneList(ArrayList<Gene> geneList) {
+        this.geneList = geneList;
     }
 
     public void setInsertGen(int index, Gene gen) {
-        this.listGen.add(index, gen);
+        this.geneList.add(index, gen);
     }
 
     // Hàm đánh giá độ tốt cá thể
@@ -79,7 +80,7 @@ public class Individual implements Comparable<Individual> {
     public int evaluateCol() {
         int evaluate = 0;
 
-        for (int index = 0; index < this.listGen.size(); index++) { // 0 -> 9
+        for (int index = 0; index < this.geneList.size(); index++) { // 0 -> 9
             evaluate += onlyEvalueteRow(index);
         }
 
@@ -92,23 +93,27 @@ public class Individual implements Comparable<Individual> {
         boolean checkCount = false;
 
         // check số lần trùng của 1 cột (công gộp tất cả số)
-        for (int dem = 1; dem < this.listGen.size() + 1; dem++) { // 1 -> 9 (do sudoku số đánh dấu từ 1 đến 9)
+        for (int dem = 1; dem < this.geneList.size() + 1; dem++) { // 1 -> 9 (do sudoku số đánh dấu từ 1 đến 9)
             int count = 0;
-            for (int k = 0; k < this.listGen.size(); k++) { // 0 -> 8 ( duyệt qua 9 vị trí trên 1 cột)
-                int valueGen = listGen.get(k).getGen()[col];
+            for (int k = 0; k < this.geneList.size(); k++) { // 0 -> 8 ( duyệt qua 9 vị trí trên 1 cột)
+                int valueGen = geneList.get(k).getGen()[col];
+
                 if (dem == valueGen) {
                     count++;
+
                     if (count == 1) {
                         checkCount = true;
                     }
                 }
             }
+
             if (checkCount) {
                 evaluate += count - 1;
             }
-            checkCount = false;
 
+            checkCount = false;
         }
+
         return evaluate;
     }
 
@@ -122,29 +127,34 @@ public class Individual implements Comparable<Individual> {
         // block
         while (checkCol <= 6) {
             int checkRow = 0;
+
             while (checkRow <= 6) {
-                for (int num = 1; num < listGen.size() + 1; num++) {
+                for (int num = 1; num < geneList.size() + 1; num++) {
                     int countCollision = 0;
                     boolean checkCount = false;
+
                     for (int i = checkRow; i < checkRow + 3; i++) {
                         for (int j = checkCol; j < checkCol + 3; j++) {
-                            int t = listGen.get(i).getGen()[j];
+                            int t = geneList.get(i).getGen()[j];
+
                             if (num == t) {
                                 countCollision++;
+
                                 if (countCollision == 2) {
                                     checkCount = true;
                                 }
                             }
                         }
                     }
+
                     if (checkCount) {
                         result += countCollision - 1;
                     }
-                    checkCount = false;
-
                 }
+
                 checkRow += 3;
             }
+
             checkCol += 3;
         }
 
@@ -156,7 +166,7 @@ public class Individual implements Comparable<Individual> {
      */
     public int lowGood() {
         int low = 0;
-        for (int i = 1; i < listGen.size(); i++) {
+        for (int i = 1; i < geneList.size(); i++) {
             if (onlyEvalueteRow(i) > onlyEvalueteRow(low)) {
                 low = i;
             }
@@ -171,23 +181,6 @@ public class Individual implements Comparable<Individual> {
 //		listGen.get(indexGen).setGen(2, 9);
 //
 //	}
-
-    /**
-     * thay đổi vị 2 gen xung đột cao
-     */
-    public int evalueGetGenCol(int gen_i, int a) {
-        int evaluate = 0;
-
-        for (int k = 0; k < this.listGen.size(); k++) {
-            int valueGen = listGen.get(a).getGen()[gen_i];
-            if (listGen.get(k).getGen()[gen_i] == valueGen && k != a) {
-                evaluate += 1;
-            }
-
-        }
-        return evaluate;
-
-    }
 
     /**
      * Tính xung đột theo ô
@@ -206,8 +199,8 @@ public class Individual implements Comparable<Individual> {
         for (int i = k; i < k + 3; i++) {
             for (int j = h; j < h + 3; j++) {
 
-                int valueGen = listGen.get(a).getGen()[gen_i];
-                if (listGen.get(i).getGen()[j] == valueGen && j != gen_i) {
+                int valueGen = geneList.get(a).getGen()[gen_i];
+                if (geneList.get(i).getGen()[j] == valueGen && j != gen_i) {
                     evaluate += 1;
 
                 }
@@ -217,30 +210,43 @@ public class Individual implements Comparable<Individual> {
         return evaluate;
     }
 
-    /**
-     * tổng xung đột của gen
-     */
-    public int evalueGetGen(int gen_i, int a) {
-        return evalueGetGenCol(gen_i, a);
+    // lấy giá trị ở cột chỉ định và hàng chỉ định so với các hàng còn lại trên cột chỉ định (ko so với hàng chỉ định) nếu trùng + 1
+    public int evaluateGeneColumn(int col, int row) {
+        int evaluate = 0;
 
+        for (int k = 0; k < this.geneList.size(); k++) {
+            int valueGen = geneList.get(row).getGen()[col];
+
+            if (geneList.get(k).getGen()[col] == valueGen && k != row) {
+                evaluate += 1;
+            }
+        }
+
+        return evaluate;
     }
 
     /**
-     * Tính xung đột max
-     *
-     * @param a
-     * @return
+     * tổng xung đột của gen
      */
-    public int lowGetGenGood(int a, boolean[] check) {
+//    public int evalueGetGen(int col, int row) {
+//        return evaluateGeneColumn(col, row);
+//    }
+
+    // trả về cột có xung đột (số lần trùng) nhiều nhất trên cùng 1 hàng chỉ định
+    public int getColBadGene(int row, boolean[] check) {
         int low = 0;
-        for (int i = 1; i < listGen.size(); i++) {
-            if (evalueGetGen(i, a) > evalueGetGen(low, a) && check[i] != true) {
-                low = i;
+        for (int col = 1; col < geneList.size(); col++) { // 1 -> 8
+//            if (evalueGetGen(i, a) > evalueGetGen(low, a) && !check[i]) {
+//                low = i;
+//            }
+            if (evaluateGeneColumn(low, row) < evaluateGeneColumn(col, row) && !check[col]) {
+                low = col;
             }
         }
         return low;
     }
 
+    // kiểm tra xem hàng đó đã điền chưa (ít nhất phải có 2 ô chưa điền)
     public boolean validMutation(Gene gen) {
         int count = 0;
         for (int i = 0; i < 9; i++) {
@@ -248,36 +254,51 @@ public class Individual implements Comparable<Individual> {
                 count++;
             }
         }
-        if (count > 7) {
-            return false;
-        }
-        return true;
+        return count <= 7;
     }
 
-    /**
-     * thay đổi gen
+    /*
+     * random row và col sau đó điền gen trên row vừa random, check xem row đó giá trị cột nào trùng nhiều nhất để swap
+     * với cột ngẫu nhiên khác trên cùng 1 hàng chỉ định
      */
-    public void setIndexGen(int[][] matrix) {
+    public void setGeneIndex(int[][] matrix) { // matix này là mảng câu hỏi đưa vào từ population chưa giải
+//        System.out.println("-------------------");
+//        for (int[] ints : matrix) {
+//            System.out.println(Arrays.toString(ints));
+//        }
+//        System.out.println("--------------random row và column");
+//        int randomRow = 3;
+        int randomRow = rd.nextInt(9);
+        int randomColIndex = rd.nextInt(9);
+//        System.out.println(randomRow + "-----" + randomCol); // 4 & 8
+//        System.out.println("--------------điền gen");
+        Gene mutation = new Gene(matrix[randomRow]); // 4
+//        System.out.println(Arrays.toString(mutation.getGen()));
+//        System.out.println("--------------cột cao nhất");
+        int highestConflictColumn = getColBadGene(randomRow, mutation.getChecked()); // trả về cột có xung đột cao nhất
+//        System.out.println(highestConflictColumn + "-----");
 
-        int rdRow = rd.nextInt(9);
-        int rdIndex2 = rd.nextInt(9);
-        Gene mutation = new Gene(matrix[rdRow]);
-        int rdIndex1 = lowGetGenGood(rdRow, mutation.getChecked());
+        /*
+         *  check xem hàng đó đã điền gần hết chưa nếu hàng đó điền còn đúng 1 chỗ hoặc điền hết r thì đổi hàng khác
+         *  case random row trúng ngay hàng 3 như check 4 test ở dưới (khi đó mảng còn có 1 chổ chưa điền)
+         */
         while (!validMutation(mutation)) {
-            rdRow = rd.nextInt(9);
-            mutation = new Gene(matrix[rdRow]);
+            randomRow = rd.nextInt(9);
+            mutation = new Gene(matrix[randomRow]);
         }
-//		System.out.println("Hang duoc dot bien: " + rdRow);
 
+//		System.out.println("Hang duoc dot bien: " + rdRow);
 //		while (true) {
 //			if (mutation.getTracking()[rdIndex1] == true)
 //				rdIndex1 = rd.nextInt(9);
 //			else
 //				break;
 //		}
+
+        // kiểm tra xem cột ngẫu nhiên này có trùng với cột xung đột cáo nhất không nếu không thì lấy cột đó
         while (true) {
-            if (rdIndex2 == rdIndex1 || mutation.getChecked()[rdIndex2] == true)
-                rdIndex2 = rd.nextInt(9);
+            if (randomColIndex == highestConflictColumn || mutation.getChecked()[randomColIndex] == true)
+                randomColIndex = rd.nextInt(9);
             else
                 break;
         }
@@ -288,43 +309,51 @@ public class Individual implements Comparable<Individual> {
 //		
 //		Gen gen = new Gen(this.listGen.get(rdRow));
 //		addGenToIndividual(gen.getGen(), rdRow);
-        this.listGen.get(rdRow).swapGen(rdIndex1, rdIndex2);
+
+        // đổi giá trị giữa 2 cột khác nhau trên cũng một hàng
+        this.geneList.get(randomRow).swapGeneColumn(highestConflictColumn, randomColIndex);
     }
 
-    public void setIndexGenVer2(int[][] matrix) {
-        int rdRow = rd.nextInt(9);
-        int rdIndex2 = rd.nextInt(9);
-        int rdIndex1 = rd.nextInt(9);
-        Gene mutation = new Gene(matrix[rdRow]);
+    // đổi 2 vị trí cột ngẫu nhiên
+    public void setGeneIndexVer2(int[][] matrix) {
+        int randomRow = rd.nextInt(9);
+        int randomColIndex1 = rd.nextInt(9);
+        int randomColIndex2 = rd.nextInt(9);
+
+        Gene mutation = new Gene(matrix[randomRow]);
 //		int rdIndex1 = lowGetGenGood(rdRow, mutation.getTracking());
+
         while (!validMutation(mutation)) {
-            rdRow = rd.nextInt(9);
-            mutation = new Gene(matrix[rdRow]);
+            randomRow = rd.nextInt(9);
+            mutation = new Gene(matrix[randomRow]);
         }
 //		System.out.println("Hang duoc dot bien: " + rdRow);
 
+//      check xem cột đó đã được điền chưa (so với trạng thái lúc ban đầu hi chưa điền của hàng đó) nếu r đổi cột khác
         while (true) {
-            if (mutation.getChecked()[rdIndex1] == true)
-                rdIndex1 = rd.nextInt(9);
+            if (mutation.getChecked()[randomColIndex1] == true)
+                randomColIndex1 = rd.nextInt(9);
             else
                 break;
         }
+
+//      check xem cột random 2 có trùng vs cột random 1 không và cột đó có rơi vào vị trí đã điền ban đầu chưa
         while (true) {
-            if (rdIndex2 == rdIndex1 || mutation.getChecked()[rdIndex2] == true)
-                rdIndex2 = rd.nextInt(9);
+            if (randomColIndex2 == randomColIndex1 || mutation.getChecked()[randomColIndex2] == true)
+                randomColIndex2 = rd.nextInt(9);
             else
                 break;
         }
-        this.listGen.get(rdRow).swapGen(rdIndex1, rdIndex2);
+
+//      swap 2 cột ngẫu nhiên
+        this.geneList.get(randomRow).swapGeneColumn(randomColIndex1, randomColIndex2);
     }
 
-    /**
-     * tính xung đột 1 hàng
-     */
-    public int sumEvalueteRow(int indexGen) {
+    // trả về tổng xung đột (số lần trùng) của từng giá trị cột chỉ định trên các hàng
+    public int sumEvalueteRow(int colIndex) {
         int sum = 0;
-        for (int i = 0; i < 9; i++) {
-            sum += evalueGetGenCol(indexGen, i);
+        for (int i = 0; i < 9; i++) { // 9 hàng
+            sum += evaluateGeneColumn(colIndex, i);
         }
 
         return sum;
@@ -337,7 +366,7 @@ public class Individual implements Comparable<Individual> {
         int index = 0;
         int max = sumEvalueteRow(index);
 
-        for (int i = 1; i < listGen.size(); i++) {
+        for (int i = 1; i < geneList.size(); i++) {
 
             if (max < sumEvalueteRow(i)) {
                 max = sumEvalueteRow(i);
@@ -351,8 +380,8 @@ public class Individual implements Comparable<Individual> {
      * In cá thể
      */
     public void print() {
-        for (int i = 0; i < listGen.size(); i++) {
-            System.out.println(Arrays.toString(listGen.get(i).getGen()));
+        for (Gene gene : geneList) {
+            System.out.println(Arrays.toString(gene.getGen()));
         }
     }
 
@@ -369,47 +398,30 @@ public class Individual implements Comparable<Individual> {
     public static void main(String[] args) {
         int[][] check = {{0, 0, 7, 8, 0, 0, 9, 0, 0}, {0, 0, 0, 5, 0, 0, 0, 3, 1}, {9, 0, 0, 0, 0, 1, 0, 4, 0},
                 {2, 1, 0, 0, 6, 0, 7, 8, 0}, {0, 0, 0, 0, 0, 3, 0, 9, 0}, {3, 0, 9, 0, 1, 0, 2, 0, 0},
-                {4, 0, 0, 0, 0, 0, 0, 1, 6}, {0, 0, 0, 1, 0, 9, 0, 0, 8}, {0, 8, 0, 0, 3, 0, 0, 0, 0},};
-        Individual n = new Individual(check);
-//		for (int i = 0; i < 200; i++) {
-//			n.setIndexGen();
-//			n.print();
-//			System.out.println(n.evaluate());
-//			System.out.println("----------------------------------");
-//
-////		}
-//		n.print();
-//		n.setIndexGen(check);
-//		System.out.println("--------");
+                {4, 0, 0, 0, 0, 0, 0, 1, 6}, {0, 0, 0, 1, 0, 9, 0, 0, 8}, {0, 8, 0, 0, 3, 0, 0, 0, 0}};
 
-        // lát mở
-//        n.print();
-//        n.setIndexGen(check);
-
-//		boolean[] checkkk = n.getListGen().get(2).getTracking();
-
-        int[][] check4 = {{0, 0, 7, 0, 1, 0, 0, 0, 8}, {0, 0, 0, 6, 8, 0, 3, 0, 2},
-                {0, 0, 0, 2, 0, 4, 0, 9, 7}, {0, 3, 2, 4, 7, 9, 6, 8, 5},
-                {0, 0, 0, 1, 6, 0, 0, 0, 4}, {0, 6, 0, 0, 0, 0, 0, 1, 9},
-                {0, 7, 0, 0, 4, 0, 0, 0, 0}, {3, 0, 9, 0, 2, 0, 8, 5, 1},
-                {0, 5, 6, 8, 0, 1, 0, 7, 0}};
+        int[][] check4 = {{0, 0, 7, 0, 1, 0, 0, 0, 8}, {0, 0, 0, 6, 8, 0, 3, 0, 2}, {0, 0, 0, 2, 0, 4, 0, 9, 7},
+                {0, 3, 2, 4, 7, 9, 6, 8, 5}, {0, 0, 0, 1, 6, 0, 0, 0, 4}, {0, 6, 0, 0, 0, 0, 0, 1, 9},
+                {0, 7, 0, 0, 4, 0, 0, 0, 0}, {3, 0, 9, 0, 2, 0, 8, 5, 1}, {0, 5, 6, 8, 0, 1, 0, 7, 0}};
         Individual matrix = new Individual(check4);
-        List<Gene> list = matrix.getListGen();
-        for (int i = 0; i < list.size(); i++) {
-            System.out.println(Arrays.toString(list.get(i).getGen()));
-        }
+        matrix.print();
+        System.out.println("hàm đánh giá");
+        System.out.println(matrix.evaluateCol());
+        System.out.println(matrix.evalueteSquare());
+        System.out.println(matrix.evaluate());
+        System.out.println("đổi cột xung đột nhiều");
+//        matrix.setGeneIndex(check4); // đổi cột trùng nhiều
+//        matrix.print();
 
-        System.out.println("-----------------------------------");
+        System.out.println("đổi 2 cột ngẫu nhiên");
+//        matrix.setGeneIndexVer2(check4); // đổi cột trùng nhiều
+//        matrix.print();
 
-        Individual individual = new Individual(matrix, check4);
-        List<Gene> listIndividual = matrix.getListGen();
-        for (int i = 0; i < listIndividual.size(); i++) {
-            System.out.println(Arrays.toString(listIndividual.get(i).getGen()));
-        }
+        System.out.println("tổng xung đột trên cùng 1 cột");
+        System.out.println(matrix.sumEvalueteRow(1));
+        System.out.println("***************************");
 
-
-//        for (int i = 0; i < list.size(); i++) {
-//            System.out.println(individual.evaluateCol());
-//        }
+        Individual copy = new Individual(matrix, check4);
+//        copy.print();
     }
 }

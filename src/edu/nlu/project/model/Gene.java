@@ -95,6 +95,7 @@ public class Gene {
         Gene gen1 = new Gene(arr);
         System.out.println(Arrays.toString(gen1.getChecked()));
         System.out.println(Arrays.toString(gen1.getGen()));
+
         gen1.swapGeneColumn(0, 3);
         System.out.println(Arrays.toString(gen1.getGen()));
 

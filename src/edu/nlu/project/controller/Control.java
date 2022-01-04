@@ -35,8 +35,8 @@ public class Control {
                                 {0, 0, 0, 1, 6, 0, 0, 0, 4}, {0, 6, 0, 0, 0, 0, 0, 1, 9},
                                 {0, 7, 0, 0, 4, 0, 0, 0, 0}, {3, 0, 9, 0, 2, 0, 8, 5, 1},
                                 {0, 5, 6, 8, 0, 1, 0, 7, 0}};
-
-                        // đưa vào trong individual để giải những ô còn thiếu trên từng hàng 1 thông qua gen
+//
+//                        // đưa vào trong individual để giải những ô còn thiếu trên từng hàng 1 thông qua gen
                         model = new Sudoku(check4);
                         /*-------đề mẫu có sẵn-------*/
 

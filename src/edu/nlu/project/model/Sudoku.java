@@ -14,7 +14,7 @@ public class Sudoku {
     }
 
     public Individual solve() {
-        return pop.finalzz();
+        return pop.doFinal();
     }
 
     public int[][] convert() {
@@ -22,7 +22,7 @@ public class Sudoku {
         int[][] arr = new int[9][9];
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
-                arr[i][j] = in.getListGen().get(i).getGen()[j];
+                arr[i][j] = in.getGeneList().get(i).getGen()[j];
             }
         }
         return arr;

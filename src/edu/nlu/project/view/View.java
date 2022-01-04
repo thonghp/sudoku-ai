@@ -1,4 +1,3 @@
-// Uses AWT's Layout Managers
 package edu.nlu.project.view;
 
 import java.awt.BorderLayout;
