@@ -32,7 +32,8 @@ public class View extends JFrame {
 
     // Board width/height in pixels
     public static final Color OPEN_CELL_BGCOLOR = Color.WHITE;
-    public static final Color Green_color = Color.GREEN;
+    public static final Color BLUE_FILL = new Color(187, 222, 251);
+    public static final Color BLUE_BUTTON = new Color(0, 114, 227);
     public static final Font FONT_NUMBERS = new Font("Tahoma", Font.BOLD, 20);
 
     // The game board composes of 9x9 JTextFields,
@@ -101,6 +102,9 @@ public class View extends JFrame {
         JPanel btnPanel = new JPanel();
         btnPanel.setLayout(new GridLayout(6, 1));
         btnCheck = new JButton("Check");
+        btnCheck.setFocusable(false);
+        btnCheck.setBackground(BLUE_BUTTON);
+        btnCheck.setForeground(Color.white);
 
         btnPanel.add(btnCheck);
         btnCheck.setFont(new Font("Tahoma", Font.PLAIN, 20));
@@ -108,14 +112,23 @@ public class View extends JFrame {
         btnSolve = new JButton("Solve");
         btnPanel.add(btnSolve);
         btnSolve.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        btnSolve.setFocusable(false);
+        btnSolve.setBackground(BLUE_BUTTON);
+        btnSolve.setForeground(Color.white);
 
         btnRefresh = new JButton("Refresh");
         btnPanel.add(btnRefresh);
         btnRefresh.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        btnRefresh.setFocusable(false);
+        btnRefresh.setBackground(BLUE_BUTTON);
+        btnRefresh.setForeground(Color.white);
 
         JButton btnExit = new JButton("Exit");
 
         btnExit.setFont(new Font("Tahoma", Font.PLAIN, 20));
+        btnExit.setFocusable(false);
+        btnExit.setBackground(BLUE_BUTTON);
+        btnExit.setForeground(Color.white);
         btnExit.addActionListener(new ActionListener() {
 
             @Override
@@ -165,13 +178,13 @@ public class View extends JFrame {
                 } else {
                     tfCells[row][col].setText(solve[row][col] + "");
                     tfCells[row][col].setForeground(Color.RED);
-                    tfCells[row][col].setBackground(Green_color);
+                    tfCells[row][col].setBackground(BLUE_FILL);
                     check[row][col] = false;
                 }
             }
 
         }
-        setNoticeHanled();
+        setNoticeHanled(true);
     }
 
     public void setTxtRefesh() {
@@ -192,13 +205,17 @@ public class View extends JFrame {
         }
     }
 
-    public void setNoticeHanled() {
-        contentNotice.setText("đã xử lý xong");
+    public void setNoticeHanled(boolean check) {
+        if (check) {
+            contentNotice.setText("đã xử lý xong");
+        } else {
+            contentNotice.setText("");
+        }
     }
 
     public void noticeOfBtnCheck() {
         if (checkMatrix()) {
-            JOptionPane.showMessageDialog(null, "tham số đúng");
+            JOptionPane.showMessageDialog(null, "Hợp lệ");
         } else {
             JOptionPane.showMessageDialog(null, "Vui lòng kiểm tra lại");
         }
